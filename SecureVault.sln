@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34616.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureVault", "SecureVault.csproj", "{A33A1D8B-3C9B-4C7E-9327-7A3A11BBD997}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A33A1D8B-3C9B-4C7E-9327-7A3A11BBD997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A33A1D8B-3C9B-4C7E-9327-7A3A11BBD997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A33A1D8B-3C9B-4C7E-9327-7A3A11BBD997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A33A1D8B-3C9B-4C7E-9327-7A3A11BBD997}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {207F7CFA-C4B0-45A0-B85F-E0B7130BDFCC}
+	EndGlobalSection
+EndGlobal
