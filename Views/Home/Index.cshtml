@@ -1,8 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Главная";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Secure Vault</h1>
+<p class="lead">Secure Vault - это надежное программное обеспечение, которое обеспечивает защиту и безопасное хранение финансовой информации. Система предоставляет возможность авторизованным пользователям управлять доступом к данным, контролировать и анализировать финансовую информацию в реальном времени, а также генерировать отчеты для принятия решений.</p>
+<p class="lead">
+    @{
+        if (User.Identity.IsAuthenticated)
+        {
+            <a asp-area="" asp-controller="Account" asp-action="Profile" class="btn btn-lg btn-light fw-bold border-white bg-white">Попробовать</a>
+        }
+        else
+        {
+            <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-lg btn-light fw-bold border-white bg-white">Попробовать</a>
+        }
+    }
+</p>
