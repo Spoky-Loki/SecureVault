@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using SecureVault.Models;
+
 namespace SecureVault
 {
     public class Program
@@ -5,6 +8,10 @@ namespace SecureVault
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
