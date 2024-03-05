@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Вход";
+}
+
+@model LoginViewModel
+
+<div class="py-5 text-center">
+    <h2>Вход на сайт</h2>
+</div>
+
+<div class="row" align="left">
+    <div class="col">
+        <form class="needs-validation" method="post" asp-action="Login" asp-controller="Account" asp-antiforgery="true">
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" asp-for="email" placeholder="you@example.com">
+                    <span asp-validation-for="email" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="password" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" asp-for="password">
+                    <span asp-validation-for="password" class="text-danger"></span>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <button class="btn btn-lg btn-light fw-bold border-white bg-white" type="submit">Вход</button>
+        </form>
+
+        <br />
+        <a b-gm7g00mt99 class="text-whiteB" asp-controller="Account" asp-action="Register">Регистрация</a>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Регистрация";
+}
+
+@model RegisterViewModel
+
+<div class="py-5 text-center">
+    <h2>Регистрация</h2>
+    <p class="lead">Здесь вы можете создать свой аккаунт для хранения своих конфиденциальных данных. Мы гарантируем полную конфиденциальность ваших данных и обеспечиваем высокий уровень защиты информации.</p>
+</div>
+
+<div class="row" align="left">
+    <div class="col">
+        <form class="needs-validation" method="post" asp-action="Register" asp-controller="Account" asp-antiforgery="true">
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="firstName" class="form-label">Имя</label>
+                    <input type="text" class="form-control" asp-for="firstName" placeholder="Имя">
+                    <span asp-validation-for="firstName" class="text-danger"></span>
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="lastName" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" asp-for="lastName" placeholder="Фамилия">
+                    <span asp-validation-for="lastName" class="text-danger"></span>
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="patronymic" class="form-label">Отчество*</label>
+                    <input type="text" class="form-control" asp-for="patronymic" placeholder="Отчество">
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" asp-for="email" placeholder="you@example.com">
+                    <span asp-validation-for="email" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="password" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" asp-for="password">
+                    <span asp-validation-for="password" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="confirmPassword" class="form-label">Повторите пароль</label>
+                    <input type="password" class="form-control" asp-for="confirmPassword">
+                    <span asp-validation-for="confirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <button class="btn btn-lg btn-light fw-bold border-white bg-white" type="submit">Регистрация</button>
+        </form>
+    </div>
+</div>
+
