@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Профель";
+}
+
+@model ProfileViewModel
+
+<div class="py-5 text-center">
+    <h2>Профель</h2>
+    <p class="lead">Здесь вы можете изменить данные своего аккаунта.</p>
+</div>
+
+<div class="row" align="left">
+    <div class="col">
+        <form class="needs-validation" method="post" asp-action="Profile" asp-controller="Account" asp-antiforgery="true">
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="Name" class="form-label">Имя</label>
+                    <input type="text" class="form-control" asp-for="Name" placeholder="Имя">
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="Surname" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" asp-for="Surname" placeholder="Фамилия">
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="Patronymic" class="form-label">Отчество</label>
+                    <input type="text" class="form-control" asp-for="Patronymic" placeholder="Отчество">
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" asp-for="Email" placeholder="you@example.com" readonly>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="PhoneNumber" class="form-label">Номер телефона</label>
+                    <input type="tel" class="form-control" asp-for="PhoneNumber" placeholder="+79999999999">
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label">Адрес</label>
+                    <input type="text" class="form-control" asp-for="Address" placeholder="ул. Улица 123">
+                </div>
+
+                <div class="col-md-5">
+                    <label asp-for="Country" class="form-label">Страна</label>
+                    <select class="form-select" asp-for="Country">
+                        <option value="">Выбрать...</option>
+                        <option>Россия</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Region" class="form-label">Область</label>
+                    <select class="form-select" asp-for="Region">
+                        <option value="">Выбрать...</option>
+                        <option>Ростовская область</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="City" class="form-label">Город</label>
+                    <select class="form-select" asp-for="City">
+                        <option value="">Выбрать...</option>
+                        <option>Ростов-на-Дону</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Zip" class="form-label">Почтовый индекс</label>
+                    <input type="text" class="form-control" asp-for="Zip" placeholder="">
+                </div>
+            </div>
+
+            <a b-gm7g00mt99 class="text-whiteB" asp-controller="Account" asp-action="ChangePassword">Сменить пароль</a>
+
+            <hr class="my-4">
+
+            <button class="btn btn-lg btn-light fw-bold border-white bg-white" type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>

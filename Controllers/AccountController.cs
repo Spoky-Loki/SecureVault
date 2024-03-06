@@ -6,6 +6,9 @@ using SecureVault.Models;
 using SecureVault.ViewModels;
 using System.Security.Claims;
 using System.Text;
+using System.Diagnostics.Metrics;
+using System.Drawing;
+using System.Net;
 
 namespace SecureVault.Controllers
 {
@@ -30,6 +33,20 @@ namespace SecureVault.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                User? user = _context.Users.FirstOrDefault(u => u.Email == User.Claims.First().Value.ToString());
+                ProfileViewModel model = new ProfileViewModel(user);
+
+                return View(model);
+            }
+            else
+                return RedirectToAction("Login");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -47,6 +64,11 @@ namespace SecureVault.Controllers
                         Email = model.email,
                         Password = Encoding.UTF8.GetBytes(model.password)
                     };
+
+                    await _context.Users.AddAsync(user);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                     ModelState.AddModelError("", "Некорректные логин и(или) пароль");
@@ -69,6 +91,54 @@ namespace SecureVault.Controllers
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль");
             }
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Profile(ProfileViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                User? user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+                if (user != null)
+                {
+                    if (model.Name != null)
+                        user.Name = model.Name;
+                    if (model.Surname != null)
+                        user.Surname = model.Surname;
+                    if (model.Patronymic != null)
+                        user.Patronymic = model.Patronymic;
+                    if (model.Address != null)
+                        user.Address = model.Address;
+                    if (model.PhoneNumber != null)
+                        user.PhoneNumber = model.PhoneNumber;
+                    if (model.Country != null)
+                        user.Country = model.Country;
+                    if (model.Region != null)
+                        user.Region = model.Region;
+                    if (model.City != null)
+                        user.City= model.City;
+                    if (model.Zip != null)
+                        user.Zip = model.Zip;
+
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Profile", "Account");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Некорректный пароль");
+                }
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task Authenticate(User user)
