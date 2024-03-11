@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SecureVault.Models;
 using SecureVault.ViewModels;
 using System.Text;
@@ -36,6 +37,66 @@ namespace SecureVault.Controllers
         public ActionResult Create()
         {
             return View(new CreditCardViewModel());
+        }
+
+        [HttpGet]
+        public ActionResult Delete(int id)
+        {
+            var card = _context.CreditCards.FirstOrDefault(i => i.Id == id);
+            if (card != null)
+                _context.CreditCards.Remove(card);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public ActionResult Detail(int id)
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                User? user = _context.Users.FirstOrDefault(u => u.Email == User.Claims.First().Value.ToString());
+
+                if (user != null)
+                {
+                    var creditCards = _context.CreditCards.Where(x => x.user == user).ToList();
+                    CreditCard? card = creditCards.FirstOrDefault(c => c.Id == id);
+                    if (card != null)
+                    {
+                        CreditCardViewModel cardViewModel = new CreditCardViewModel(card, true);
+
+                        return View(cardViewModel);
+                    }
+                    else
+                        return RedirectToAction("Index");
+                }
+                else
+                    return RedirectToAction("Login", "Account");
+            }
+            else
+                return RedirectToAction("Login", "Account");
+        }
+
+        [HttpGet]
+        [Route("CreditCard/Password/{id}")]
+        public ActionResult Password(int id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Password(PasswordViewModel model, int id)
+        {
+            if (ModelState.IsValid)
+            {
+                User? user = _context.Users.FirstOrDefault(u => u.Email == User.Claims.First().Value.ToString());
+
+                if (user != null && Encoding.UTF8.GetString(user.Password) == model.password)
+                    return RedirectToAction("Detail", new { id = id });
+                else
+                    ModelState.AddModelError("", "Некорректные логин и(или) пароль");
+            }
+            return View(model);
         }
 
         [HttpPost]

@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Банковская карта";
+}
+
+@model CreditCardViewModel
+
+<div class="py-5 text-center">
+    <h1>Банковская карта</h1>
+    <p class="lead">Здесь вы можете увидеть полную информацию своей банковской карты</p>
+</div>
+
+<div class="row" align="left">
+    <div class="col">
+        <div class="row gy-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Название карты</label>
+                <input type="text" class="form-control" asp-for="Name" placeholder="НАЗВАНИЕ" readonly>
+            </div>
+        </div>
+
+        <div class="my-3">
+            @foreach (var cardType in Model.CardTypes)
+            {
+                <div class="form-check">
+                    <input asp-for="CardType" type="radio" class="form-check-input" name="Name" value="@cardType" disabled>
+                    <label class="form-check-label" asp-for="CardType">@cardType карта</label>
+                </div>
+            }
+        </div>
+
+        <div class="row gy-3">
+            <div class="col-md-6">
+                <label asp-for="CcName" class="form-label">Имя на карте</label>
+                <input type="text" class="form-control" asp-for="CcName" placeholder="ИМЯ ФАМИЛИЯ" readonly>
+                <small class="text-body-secondary">Полное имя, указанное на карточке</small>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CcNumber" class="form-label">Номер банковской карты</label>
+                <input type="text" class="form-control" asp-for="CcNumber" placeholder="0000 1111 2222 3333" readonly>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="CcExpiration" class="form-label">Срок действия</label>
+                <input type="text" class="form-control" asp-for="CcExpiration" placeholder="01/24" readonly>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="CVV" class="form-label">CVV</label>
+                <input type="text" class="form-control" asp-for="CVV" placeholder="" readonly>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <a asp-area="" asp-controller="CreditCard" asp-action="Index" class="btn btn-lg btn-light fw-bold border-white bg-white">Назад к списку карт</a>
+    </div>
+</div>
+
