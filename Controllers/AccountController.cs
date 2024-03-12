@@ -6,19 +6,20 @@ using SecureVault.Models;
 using SecureVault.ViewModels;
 using System.Security.Claims;
 using System.Text;
-using System.Diagnostics.Metrics;
-using System.Drawing;
-using System.Net;
+using SecureVault.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SecureVault.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ApplicationContext _context;
+        private readonly EmailService emailService;
 
-        public AccountController(ApplicationContext context)
+        public AccountController(ApplicationContext context, IConfiguration configuration)
         {
             _context = context;
+            emailService = new EmailService(configuration);
         }
 
         [HttpGet]
@@ -29,6 +30,12 @@ namespace SecureVault.Controllers
 
         [HttpGet]
         public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult EmailConfirmation()
         {
             return View();
         }
@@ -45,6 +52,31 @@ namespace SecureVault.Controllers
             }
             else
                 return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+                return View("Error");
+
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id.ToString() == userId);
+            if (user == null)
+                return View("Error");
+
+            if (user.EmailConfirmationToken.Equals(code))
+            {
+                user.EmailConfirmationToken = null;
+                user.EmailConfirmed = true;
+
+                _context.Users.Update(user);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+                return View("Error");
         }
 
         [HttpPost]
@@ -65,10 +97,21 @@ namespace SecureVault.Controllers
                         Password = Encoding.UTF8.GetBytes(model.password)
                     };
 
+                    var code = emailService.GenerateEmailConfirmationToken();
+                    user.EmailConfirmationToken = code;
+
                     await _context.Users.AddAsync(user);
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction("Index", "Home");
+                    var callbackUrl = Url.Action(
+                       "ConfirmEmail",
+                       "Account",
+                       new { userId = user.Id, code = code },
+                       protocol: HttpContext.Request.Scheme);
+                    emailService.SendEmail(model.email, "Confirm your account",
+                        $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
+
+                    return RedirectToAction("EmailConfirmation");
                 }
                 else
                     ModelState.AddModelError("", "Некорректные логин и(или) пароль");
@@ -85,8 +128,16 @@ namespace SecureVault.Controllers
                 var user = await _context.Set<User>().FirstOrDefaultAsync(e => e.Email == model.email);
                 if (user != null && user.Password.SequenceEqual(Encoding.UTF8.GetBytes(model.password)))
                 {
-                    await Authenticate(user);
-                    return RedirectToAction("Index", "Home");
+                    if (!user.EmailConfirmed)
+                    {
+                        ModelState.AddModelError(string.Empty, "Вы не подтвердили свой email");
+                        return View(model);
+                    }
+                    else
+                    {
+                        await Authenticate(user);
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль");
             }

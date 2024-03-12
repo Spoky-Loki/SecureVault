@@ -24,6 +24,8 @@ namespace SecureVault
                     options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
                 });
 
+            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 

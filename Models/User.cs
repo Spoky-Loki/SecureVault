@@ -37,6 +37,9 @@ namespace SecureVault.Models
         [AllowNull]
         public string? Zip { get; set; }
 
+        [AllowNull]
+        public string? EmailConfirmationToken { get; set; } = null;
 
+        public bool EmailConfirmed { get; set; } = false;
     }
 }
