@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using SecureVault.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace SecureVault.Controllers
 {
@@ -41,6 +42,24 @@ namespace SecureVault.Controllers
         }
 
         [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string code)
+        {
+            return code == null ? View("Error") : View();
+        }
+
+        [HttpGet]
         public IActionResult Profile()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -65,7 +84,7 @@ namespace SecureVault.Controllers
             if (user == null)
                 return View("Error");
 
-            if (user.EmailConfirmationToken.Equals(code))
+            if (user.EmailConfirmationToken != null && user.EmailConfirmationToken.Equals(code))
             {
                 user.EmailConfirmationToken = null;
                 user.EmailConfirmed = true;
@@ -180,6 +199,58 @@ namespace SecureVault.Controllers
                 {
                     ModelState.AddModelError("", "Некорректный пароль");
                 }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+                await Logout();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            User? user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null)
+                return View("ResetPasswordConfirmation");
+
+            if (user.PasswordResetToken != null && user.PasswordResetToken.Equals(model.Code))
+            {
+                user.PasswordResetToken = null;
+                user.Password = Encoding.UTF8.GetBytes(model.Password);
+
+                _context.Users.Update(user);
+                _context.SaveChanges();
+
+                return View("ResetPasswordConfirmation");
+            }
+            else
+                return View("Error");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                User? user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+                if (user == null || !user.EmailConfirmed)
+                    return View("ForgotPasswordConfirmation");
+
+                var code = emailService.GeneratePasswordResetToken();
+                user.PasswordResetToken = code;
+
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                emailService.SendEmail(model.Email, "Reset Password",
+                    $"Для сброса пароля пройдите по ссылке: <a href='{callbackUrl}'>link</a>");
+                return View("ForgotPasswordConfirmation");
             }
             return View(model);
         }

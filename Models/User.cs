@@ -16,7 +16,7 @@ namespace SecureVault.Models
 
         public string Email { get; set; }
 
-        [MaxLength(32)]
+        [MaxLength(128)]
         public byte[] Password { get; set; }
 
         [AllowNull]
@@ -41,5 +41,8 @@ namespace SecureVault.Models
         public string? EmailConfirmationToken { get; set; } = null;
 
         public bool EmailConfirmed { get; set; } = false;
+
+        [AllowNull]
+        public string? PasswordResetToken { get; set; }
     }
 }
