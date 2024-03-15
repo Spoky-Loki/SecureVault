@@ -20,13 +20,13 @@ namespace SecureVault.ViewModels
         [DataType(DataType.EmailAddress)]
         public string email { get; set; }
 
-        [Required(ErrorMessage = "Не указан пароль")]
         [DataType(DataType.Password)]
-        [MaxLength(32)]
+        [MaxLength(32, ErrorMessage = "Максимальная длинна пароля 32 символа")]
+        [MinLength(6, ErrorMessage = "Минимальная длинна пароля 6 символов")]
+        [Required(ErrorMessage = "Не указан пароль")]
         public string password { get; set; }
 
         [DataType(DataType.Password)]
-        [MaxLength(32)]
         [Required(ErrorMessage = "Не указан пароль")]
         [Compare("password", ErrorMessage = "Пароли не совпадают")]
         public string confirmPassword { get; set; }
