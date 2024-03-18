@@ -367,4 +367,4 @@ settings.json
 appsettings.json
 
 # AES Key
-Сryptography/Key.cs
+Services/Key.cs
