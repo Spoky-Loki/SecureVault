@@ -64,6 +64,41 @@ namespace SecureVault.Services
             return result;
         }
 
+        private static List<byte[,]> getKeysBlocks(byte[] expandedKey)
+        {
+            List<byte[,]> result = new List<byte[,]>();
+            for (int i = 0; i < expandedKey.Length; i += 16)
+            {
+                byte[,] block = new byte[4, 4];
+                for (int k = 0; k < 4; k++)
+                    for (int l = 0; l < 4; l++)
+                        block[l, k] = expandedKey[i + l + (k * 4)];
+                result.Add(block);
+            }
+            return result;
+        }
+
+        private static byte[] SubWord(byte[] word)
+        {
+            byte[] result = new byte[4];
+            for (int i = 0; i < 4; i++)
+            {
+                result[i] = sBox[word[i]];
+            }
+            return result;
+        }
+
+        private static byte[] RotWord(byte[] word)
+        {
+            byte temp = word[0];
+            for (int i = 0; i < 3; i++)
+            {
+                word[i] = word[i + 1];
+            }
+            word[3] = temp;
+            return word;
+        }
+
         private static byte[,] subBytes(byte[,] state, bool inverse = false)
         {
             byte[] box = inverse ? invSBox : sBox;
@@ -114,6 +149,48 @@ namespace SecureVault.Services
                     result[3, col] = (byte)(GaloisMultiplication(state[0, col], 3) ^ state[1, col] ^ state[2, col] ^ GaloisMultiplication(state[3, col], 2));
                 }
             return result;
+        }
+
+        private static List<byte[,]> keyExpansion(byte[] key)
+        {
+            int Nk = key.Length / 4;
+            int Nr = Nk + 6;
+            int Nb = 4;
+
+            int currentSize = 0;
+            int rconIteration = 0;
+            int keySize = Nb * (Nr + 1) * 4;
+            byte[] expandedKey = new byte[keySize];
+            byte[] temp = new byte[4];
+
+            for (int i = 0; i < Nk * 4; i++)
+            {
+                expandedKey[i] = key[i];
+            }
+            currentSize += Nk * 4;
+
+            while (currentSize < keySize)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    temp[i] = expandedKey[currentSize - 4 + i];
+                }
+
+                if (currentSize % (Nk * 4) == 0)
+                {
+                    temp = SubWord(RotWord(temp));
+                    temp[0] ^= rCon[rconIteration];
+                    rconIteration++;
+                }
+
+                for (int i = 0; i < 4; i++)
+                {
+                    expandedKey[currentSize] = (byte)(expandedKey[currentSize - Nk * 4] ^ temp[i]);
+                    currentSize++;
+                }
+            }
+
+            return getKeysBlocks(expandedKey);
         }
     }
 }
