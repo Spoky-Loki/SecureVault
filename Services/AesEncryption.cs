@@ -78,6 +78,41 @@ namespace SecureVault.Services
             return result;
         }
 
+        private static List<byte[,]> arrayToBlocks(byte[] originalBytes, int blockSize = 16)
+        {
+            List<byte[,]> result = new List<byte[,]>();
+            for (int i = 0; i < originalBytes.Length; i += blockSize)
+            {
+                byte[,] block = new byte[4, 4];
+                for (int k = 0; k < 4; k++)
+                {
+                    for (int l = 0; l < 4; l++)
+                    {
+                        int index = i + l + (k * 4);
+                        if (index >= originalBytes.Length)
+                            block[l, k] = 0;
+                        else
+                            block[l, k] = originalBytes[index];
+                    }
+                }
+                result.Add(block);
+            }
+            return result;
+        }
+
+        private static byte[] blocksToArray(List<byte[,]> blocks)
+        {
+            byte[] result = new byte[blocks.Count * blocks[0].Length];
+            int index = 0;
+            foreach (var block in blocks)
+            {
+                for (int i = 0; i < block.GetLength(0); i++)
+                    for (int j = 0; j < block.GetLength(1); j++)
+                        result[index++] = block[j, i];
+            }
+            return result;
+        }
+
         private static byte[] SubWord(byte[] word)
         {
             byte[] result = new byte[4];
@@ -191,6 +226,37 @@ namespace SecureVault.Services
             }
 
             return getKeysBlocks(expandedKey);
+        }
+
+        private static byte[,] addRoundKey(byte[,] state, byte[,] roundKey)
+        {
+            byte[,] result = new byte[4, 4];
+            for (int i = 0; i < state.GetLength(0); i++)
+                for (int j = 0; j < state.GetLength(1); j++)
+                    result[i, j] = (byte)(state[i, j] ^ roundKey[i, j]);
+            return result;
+        }
+
+        public static byte[] encrypt(byte[] text, byte[] key)
+        {
+            var blocks = arrayToBlocks(text);
+            var roundKeys = keyExpansion(key);
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                blocks[i] = addRoundKey(blocks[i], roundKeys[0]);
+                for (int j = 1; j < 10; j++)
+                {
+                    blocks[i] = subBytes(blocks[i]);
+                    blocks[i] = shiftRows(blocks[i]);
+                    blocks[i] = mixColumns(blocks[i]);
+                    blocks[i] = addRoundKey(blocks[i], roundKeys[j]);
+                }
+
+                blocks[i] = subBytes(blocks[i]);
+                blocks[i] = shiftRows(blocks[i]);
+                blocks[i] = addRoundKey(blocks[i], roundKeys[10]);
+            }
+            return blocksToArray(blocks);
         }
     }
 }
