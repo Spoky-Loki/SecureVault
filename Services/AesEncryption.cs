@@ -113,6 +113,25 @@ namespace SecureVault.Services
             return result;
         }
 
+        public static byte[] getBytePassword(string password)
+        {
+            byte[] temp = Encoding.UTF8.GetBytes(password);
+            if (temp.Length % 16 == 0)
+                return temp;
+            else
+            {
+                int size = 16 - temp.Length % 16;
+                byte[] result = new byte[size + temp.Length];
+                Console.WriteLine(result.Length);
+                for (int i = 0; i < result.Length; i++)
+                    if (i < temp.Length)
+                        result[i] = temp[i];
+                    else
+                        result[i] = 0;
+                return result;
+            }
+        }
+
         private static byte[] SubWord(byte[] word)
         {
             byte[] result = new byte[4];
@@ -255,6 +274,28 @@ namespace SecureVault.Services
                 blocks[i] = subBytes(blocks[i]);
                 blocks[i] = shiftRows(blocks[i]);
                 blocks[i] = addRoundKey(blocks[i], roundKeys[10]);
+            }
+            return blocksToArray(blocks);
+        }
+
+        public static byte[] decrypt(byte[] text, byte[] key)
+        {
+            var blocks = arrayToBlocks(text);
+            var roundKeys = keyExpansion(key);
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                blocks[i] = addRoundKey(blocks[i], roundKeys[10]);
+                for (int j = 1; j < 10; j++)
+                {
+                    blocks[i] = shiftRows(blocks[i], true);
+                    blocks[i] = subBytes(blocks[i], true);
+                    blocks[i] = addRoundKey(blocks[i], roundKeys[10 - j]);
+                    blocks[i] = mixColumns(blocks[i], true);
+                }
+
+                blocks[i] = shiftRows(blocks[i], true);
+                blocks[i] = subBytes(blocks[i], true);
+                blocks[i] = addRoundKey(blocks[i], roundKeys[0]);
             }
             return blocksToArray(blocks);
         }
