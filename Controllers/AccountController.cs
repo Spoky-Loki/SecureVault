@@ -8,7 +8,6 @@ using System.Security.Claims;
 using System.Text;
 using SecureVault.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace SecureVault.Controllers
 {
@@ -113,7 +112,7 @@ namespace SecureVault.Controllers
                         Surname = model.lastName,
                         Patronymic = model.patronymic,
                         Email = model.email,
-                        Password = Encoding.UTF8.GetBytes(model.password)
+                        Password = AesEncryption.encrypt(Encoding.UTF8.GetBytes(model.password), Services.Key.key)
                     };
 
                     var code = emailService.GenerateEmailConfirmationToken();
@@ -145,7 +144,8 @@ namespace SecureVault.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _context.Set<User>().FirstOrDefaultAsync(e => e.Email == model.email);
-                if (user != null && user.Password.SequenceEqual(Encoding.UTF8.GetBytes(model.password)))
+                if (user != null && AesEncryption.decrypt(user.Password, Services.Key.key).
+                    SequenceEqual(AesEncryption.getBytePassword(model.password)))
                 {
                     if (!user.EmailConfirmed)
                     {
@@ -220,7 +220,7 @@ namespace SecureVault.Controllers
             if (user.PasswordResetToken != null && user.PasswordResetToken.Equals(model.Code))
             {
                 user.PasswordResetToken = null;
-                user.Password = Encoding.UTF8.GetBytes(model.Password);
+                user.Password = AesEncryption.encrypt(Encoding.UTF8.GetBytes(model.Password), Services.Key.key);
 
                 _context.Users.Update(user);
                 _context.SaveChanges();

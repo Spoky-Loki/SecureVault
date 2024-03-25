@@ -16,7 +16,7 @@ namespace SecureVault.Models
 
         public string Email { get; set; }
 
-        [MaxLength(128)]
+        [MaxLength(32)]
         public byte[] Password { get; set; }
 
         [AllowNull]
