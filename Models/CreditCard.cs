@@ -14,12 +14,12 @@ namespace SecureVault.Models
 
         public string CcName { get; set; }
 
-        [MaxLength(32)]
+        [MaxLength(16)]
         public byte[] CcNumber { get; set; }
 
         public string CcExpiration { get; set; }
 
-        [MaxLength(32)]
+        [MaxLength(16)]
         public byte[] CVV { get; set; }
     }
 }

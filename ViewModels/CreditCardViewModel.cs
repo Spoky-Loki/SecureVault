@@ -1,4 +1,5 @@
 ﻿using SecureVault.Models;
+using SecureVault.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
@@ -44,12 +45,15 @@ namespace SecureVault.ViewModels
         {
             if (full)
             {
+                var ccNumberTemp = Encoding.UTF8.GetString(AesEncryption.decrypt(creditCard.CcNumber, Key.key));
+
                 Id = creditCard.Id;
                 Name = creditCard.Name;
                 CcExpiration = creditCard.CcExpiration;
                 CcName = creditCard.CcName;
-                CcNumber = Encoding.UTF8.GetString(creditCard.CcNumber).Substring(0, 16);
-                CVV = Encoding.UTF8.GetString(creditCard.CVV).Substring(0, 3);
+                CcNumber = ccNumberTemp.Substring(0, 4) + " " + ccNumberTemp.Substring(4, 4) + " " +
+                    ccNumberTemp.Substring(8, 4) + " " + ccNumberTemp.Substring(12, 4);
+                CVV = Encoding.UTF8.GetString(AesEncryption.decrypt(creditCard.CVV, Key.key)).Substring(0, 3);
                 CardType = creditCard.CcType == true ? CardTypes[0] : CardTypes[1];
             }
             else
@@ -58,8 +62,8 @@ namespace SecureVault.ViewModels
                 Name = creditCard.Name;
                 CcExpiration = creditCard.CcExpiration;
                 CcName = creditCard.CcName;
-                CcNumber = "**** **** **** " + Encoding.UTF8.GetString(creditCard.CcNumber).Substring(12);
-                CVV = "**" + Encoding.UTF8.GetString(creditCard.CVV).Substring(2).First();
+                CcNumber = "**** **** **** " + Encoding.UTF8.GetString(AesEncryption.decrypt(creditCard.CcNumber, Key.key)).Substring(12);
+                CVV = "**" + Encoding.UTF8.GetString(AesEncryption.decrypt(creditCard.CVV, Key.key)).Substring(2).First();
                 CardType = creditCard.CcType == true ? CardTypes[0] : CardTypes[1];
             }
         }

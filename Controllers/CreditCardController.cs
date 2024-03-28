@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SecureVault.Models;
+using SecureVault.Services;
 using SecureVault.ViewModels;
 using System.Text;
+using Key = SecureVault.Services.Key;
 
 namespace SecureVault.Controllers
 {
@@ -91,7 +93,7 @@ namespace SecureVault.Controllers
             {
                 User? user = _context.Users.FirstOrDefault(u => u.Email == User.Claims.First().Value.ToString());
 
-                if (user != null && Encoding.UTF8.GetString(user.Password) == model.password)
+                if (user != null && AesEncryption.decrypt(user.Password, Key.key).SequenceEqual(AesEncryption.getBytePassword(model.password)))
                     return RedirectToAction("Detail", new { id = id });
                 else
                     ModelState.AddModelError("", "Некорректные логин и(или) пароль");
@@ -113,8 +115,8 @@ namespace SecureVault.Controllers
                         Name = model.Name,
                         CcExpiration = model.CcExpiration,
                         CcName = model.CcName,
-                        CcNumber = Encoding.UTF8.GetBytes(model.CcNumber),
-                        CVV = Encoding.UTF8.GetBytes(model.CVV),
+                        CcNumber = AesEncryption.encrypt(Encoding.UTF8.GetBytes(model.CcNumber.Replace(" ", "")), Key.key),
+                        CVV = AesEncryption.encrypt(Encoding.UTF8.GetBytes(model.CVV.ToString()), Key.key),
                         CcType = model.CardType == model.CardTypes[0] ? true : false
                     };
 
